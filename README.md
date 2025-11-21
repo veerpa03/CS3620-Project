@@ -13,16 +13,16 @@ Create a comprehensive database-driven application for stock portfolio managemen
 ## Features & Interactions
 
 ### Interactive Features (Write Operations)
-- ✅ **Add stocks to watchlist** - Monitor interesting stocks
-- ✅ **Remove stocks from watchlist** - Clean up your watchlist
-- ✅ **Create user accounts** - Register and manage profiles
-- ✅ **Create portfolios** - Organize investments
+-  **Add stocks to watchlist** - Monitor interesting stocks
+-  **Remove stocks from watchlist** - Clean up your watchlist
+-  **Create user accounts** - Register and manage profiles
+-  **Create portfolios** - Organize investments
 
 ### Read-Only Features
-- 📊 **View stock prices** - Historical daily price data
-- 📈 **Portfolio analytics** - Track performance and holdings
-- 🔍 **Search stocks** - Browse 500+ S&P 500 companies
-- 📉 **Market analytics** - Sector distribution, volume leaders, volatility analysis
+-  **View stock prices** - Historical daily price data
+-  **Portfolio analytics** - Track performance and holdings
+-  **Search stocks** - Browse 500+ S&P 500 companies
+-  **Market analytics** - Sector distribution, volume leaders, volatility analysis
 
 ## Database Schema (10 Tables)
 

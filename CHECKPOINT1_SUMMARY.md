@@ -5,26 +5,26 @@ o# Checkpoint 1 - Complete Summary
 ### What We've Built
 
 A complete stock portfolio management system with:
-- ✅ **10 database tables** properly designed and normalized
-- ✅ **3 public datasets** integrated (S&P 500 companies, stock prices, company list)
-- ✅ **Flask web application** with interactive UI
-- ✅ **Write operations** (add/remove from watchlist)
-- ✅ **Analytics dashboard** (3+ analytical views)
-- ✅ **Complete ER diagram** with relationships
+-  **10 database tables** properly designed and normalized
+-  **3 public datasets** integrated (S&P 500 companies, stock prices, company list)
+-  **Flask web application** with interactive UI
+-  **Write operations** (add/remove from watchlist)
+-  **Analytics dashboard** (3+ analytical views)
+-  **Complete ER diagram** with relationships
 
 ---
 
 ## Checkpoint 1 Deliverables (All Complete)
 
-### 1. Project Name ✅
+### 1. Project Name 
 **StockFlow - Smart Portfolio Tracker**
 
-### 2. Selected Public Databases ✅
+### 2. Selected Public Databases 
 1. **S&P 500 Companies with Financial Information** (Kaggle)
 2. **Stock Price Data** (Yahoo Finance via yfinance)
 3. **S&P 500 Company List** (Wikipedia)
 
-### 3. App Description ✅
+### 3. App Description 
 StockFlow is a stock portfolio management system that allows users to:
 - Track 500+ S&P 500 stocks
 - View historical price data
@@ -32,7 +32,7 @@ StockFlow is a stock portfolio management system that allows users to:
 - Build watchlists of interesting stocks
 - Analyze market trends with sector distribution, volume leaders, and volatility metrics
 
-### 4. Database Diagram (10 Tables) ✅
+### 4. Database Diagram (10 Tables) 
 See `ER_DIAGRAM.md` for complete details.
 
 **Tables:**
@@ -47,10 +47,10 @@ See `ER_DIAGRAM.md` for complete details.
 9. alerts - Price alerts
 10. audit_log - Activity tracking
 
-### 5. Running Code Demo ✅
+### 5. Running Code Demo 
 Follow the steps below to run the application.
 
-### 6. GitHub Repository ✅
+### 6. GitHub Repository 
 This repository: `CS3620-Project`
 
 ---
@@ -63,7 +63,7 @@ This repository: `CS3620-Project`
 ```bash
 python database/init_db.py
 ```
-✅ You should see: "Database initialization complete!" with 10 tables listed
+ You should see: "Database initialization complete!" with 10 tables listed
 
 #### Step 2: Download and Load Data
 ```bash
@@ -73,14 +73,14 @@ python scripts/download_data.py
 # Load data into MySQL
 python scripts/load_data.py
 ```
-✅ You should see: 500+ companies and thousands of price records loaded
+ You should see: 500+ companies and thousands of price records loaded
 
 #### Step 3: Run the Web Application
 ```bash
 cd app
 python app.py
 ```
-✅ Open your browser to: **http://localhost:5000**
+ Open your browser to: **http://localhost:5000**
 
 ---
 
