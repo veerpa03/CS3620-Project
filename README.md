@@ -82,18 +82,7 @@ cd CS3620-Project
 pip install -r requirements.txt
 ```
 
-### Step 3: Configure Database
-
-The `.env` file is already configured with:
-- Host: localhost
-- Port: 3306
-- Username: root
-- Password: 031101
-- Database: stock_portfolio
-
-**If your MySQL credentials are different, edit `.env` file.**
-
-### Step 4: Initialize Database
+### Step 3: Initialize Database
 
 ```bash
 # Create database and tables
@@ -102,12 +91,12 @@ python database/init_db.py
 
 You should see:
 ```
-✓ Database 'stock_portfolio' created successfully
-✓ Database schema created successfully
-✓ 10 tables created
+ Database 'stock_portfolio' created successfully
+ Database schema created successfully
+ 10 tables created
 ```
 
-### Step 5: Download and Load Data
+### Step 4: Download and Load Data
 
 ```bash
 # Download datasets (this may take 5-10 minutes)
@@ -119,12 +108,12 @@ python scripts/load_data.py
 
 Expected output:
 ```
-✓ Loaded 500+ companies into stocks table
-✓ Loaded 10,000+ price records into stock_prices table
-✓ Created demo user and portfolio
+ Loaded 500+ companies into stocks table
+ Loaded 10,000+ price records into stock_prices table
+ Created demo user and portfolio
 ```
 
-### Step 6: Run the Application
+### Step 5: Run the Application
 
 ```bash
 cd app
@@ -133,40 +122,7 @@ python app.py
 
 The application will start at: **http://localhost:5000**
 
-## Demo Video
 
-[Video recording link will be added here]
-
-## Project Structure
-
-```
-CS3620-Project/
-├── app/
-│   ├── app.py                 # Flask application
-│   ├── templates/             # HTML templates
-│   │   ├── base.html
-│   │   ├── index.html
-│   │   ├── stocks.html
-│   │   ├── stock_detail.html
-│   │   ├── portfolios.html
-│   │   ├── watchlist.html
-│   │   ├── analytics.html
-│   │   └── about.html
-│   └── static/
-│       └── css/
-│           └── style.css      # Stylesheet
-├── database/
-│   ├── schema.sql             # Database schema (10 tables)
-│   └── init_db.py             # Database initialization
-├── scripts/
-│   ├── download_data.py       # Download datasets
-│   └── load_data.py           # Load data into MySQL
-├── data/                      # Downloaded CSV files (auto-generated)
-├── .env                       # Database configuration
-├── .gitignore
-├── requirements.txt
-├── README.md
-└── ER_DIAGRAM.md              # Entity-Relationship diagram
 
 ## ER Diagram
 
@@ -176,30 +132,10 @@ See `ER_DIAGRAM.md` for the complete entity-relationship diagram with:
 - Relationships and cardinality
 - Column details
 
-## Screenshots
-
-### Dashboard
-![Dashboard](screenshots/dashboard.png)
-
-### Stock List
-![Stocks](screenshots/stocks.png)
-
-### Analytics
-![Analytics](screenshots/analytics.png)
-
-## Future Enhancements (For Final Project)
-
-- Add 10+ more tables to reach 20+ requirement
-- Implement actual buy/sell transactions
-- Portfolio performance tracking
-- Real-time price alerts
-- Advanced analytics (ROI, risk metrics)
-- User authentication and sessions
-- API endpoints for mobile app
-
 ## Team Members
 
-- [Your Name Here]
+- Viraj Parmar
+- Dhruv Patel
 
 ## License
 
