@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+
+{% block title %}Stocks - StockFlow{% endblock %}
+
+{% block content %}
+<div class="stocks-page">
+    <h2>All Stocks ({{ stocks|length }})</h2>
+
+    <table class="data-table">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Symbol</th>
+                <th>Company Name</th>
+                <th>Sector</th>
+                <th>Exchange</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for stock in stocks %}
+            <tr>
+                <td>{{ stock.stock_id }}</td>
+                <td><strong><a href="{{ url_for('stock_detail', stock_id=stock.stock_id) }}">{{ stock.symbol }}</a></strong></td>
+                <td>{{ stock.company_name }}</td>
+                <td>{{ stock.sector_name or 'N/A' }}</td>
+                <td>{{ stock.exchange or 'N/A' }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

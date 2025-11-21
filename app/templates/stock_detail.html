@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+
+{% block title %}{{ stock.symbol }} - StockFlow{% endblock %}
+
+{% block content %}
+<div class="stock-detail">
+    <div class="back-link">
+        <a href="{{ url_for('stocks') }}">&larr; Back to Stocks</a>
+    </div>
+
+    <div class="stock-header">
+        <h2>{{ stock.symbol }} - {{ stock.company_name }}</h2>
+        <p class="sector-tag">{{ stock.sector_name or 'N/A' }}</p>
+    </div>
+
+    <div class="stock-info">
+        <div class="info-item">
+            <label>Exchange:</label>
+            <span>{{ stock.exchange or 'N/A' }}</span>
+        </div>
+        <div class="info-item">
+            <label>Market Cap:</label>
+            <span>{{ stock.market_cap or 'N/A' }}</span>
+        </div>
+        <div class="info-item">
+            <label>Country:</label>
+            <span>{{ stock.country or 'USA' }}</span>
+        </div>
+    </div>
+
+    <div class="section">
+        <h3>Price History (Last 30 Days)</h3>
+
+        {% if prices %}
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>Date</th>
+                    <th>Open</th>
+                    <th>Close</th>
+                    <th>High</th>
+                    <th>Low</th>
+                    <th>Volume</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for price in prices %}
+                <tr>
+                    <td>{{ price.price_date }}</td>
+                    <td>${{ "%.2f"|format(price.open_price or 0) }}</td>
+                    <td>${{ "%.2f"|format(price.close_price or 0) }}</td>
+                    <td>${{ "%.2f"|format(price.high_price or 0) }}</td>
+                    <td>${{ "%.2f"|format(price.low_price or 0) }}</td>
+                    <td>{{ "{:,}".format(price.volume or 0) }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+        <p>No price data available for this stock.</p>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

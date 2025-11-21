@@ -1,0 +1,59 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard - StockFlow{% endblock %}
+
+{% block content %}
+<div class="dashboard">
+    <h2>Dashboard</h2>
+
+    <div class="stats-grid">
+        <div class="stat-card">
+            <h3>{{ total_stocks }}</h3>
+            <p>Total Stocks</p>
+        </div>
+        <div class="stat-card">
+            <h3>{{ total_prices }}</h3>
+            <p>Price Records</p>
+        </div>
+        <div class="stat-card">
+            <h3>{{ total_users }}</h3>
+            <p>Users</p>
+        </div>
+        <div class="stat-card">
+            <h3>{{ total_portfolios }}</h3>
+            <p>Portfolios</p>
+        </div>
+    </div>
+
+    <div class="section">
+        <h3>Stocks with Price Data</h3>
+        <p style="color: #64748b; margin-bottom: 1rem;">
+            Showing stocks that have historical price data.
+            We have <strong>{{ total_stocks }} total companies</strong> in the database,
+            but price data for <strong>AAPL</strong> (Apple Inc.) from our public dataset.
+        </p>
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>Symbol</th>
+                    <th>Company Name</th>
+                    <th>Sector</th>
+                    <th>Latest Price</th>
+                    <th>Date</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for stock in stocks %}
+                <tr>
+                    <td><strong>{{ stock.symbol }}</strong></td>
+                    <td>{{ stock.company_name }}</td>
+                    <td>{{ stock.sector_name or 'N/A' }}</td>
+                    <td>${{ "%.2f"|format(stock.close_price or 0) }}</td>
+                    <td>{{ stock.price_date or 'N/A' }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

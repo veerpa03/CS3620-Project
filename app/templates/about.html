@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+
+{% block title %}About - StockFlow{% endblock %}
+
+{% block content %}
+<div class="about-page">
+    <h2>About StockFlow</h2>
+
+    <div class="about-content">
+        <section>
+            <h3>Project Overview</h3>
+            <p><strong>StockFlow</strong> is a stock portfolio management and tracking system developed for CS3620 Database Systems course.</p>
+            <p>This is Checkpoint 1 - a minimal working version demonstrating database design and basic functionality.</p>
+        </section>
+
+        <section>
+            <h3>Features</h3>
+            <ul>
+                <li>Track 500+ stocks from the S&P 500 index</li>
+                <li>View historical stock price data</li>
+                <li>Create and manage investment portfolios</li>
+                <li>Maintain a watchlist of interesting stocks</li>
+                <li>Analyze market trends with interactive analytics</li>
+            </ul>
+        </section>
+
+        <section>
+            <h3>Database Schema (10 Tables)</h3>
+            <ol>
+                <li><strong>users</strong> - User accounts and authentication</li>
+                <li><strong>portfolios</strong> - Investment portfolios</li>
+                <li><strong>sectors</strong> - Stock industry sectors</li>
+                <li><strong>stocks</strong> - Stock master data</li>
+                <li><strong>stock_prices</strong> - Historical daily prices</li>
+                <li><strong>transactions</strong> - Buy/sell records</li>
+                <li><strong>holdings</strong> - Current portfolio holdings</li>
+                <li><strong>watchlist</strong> - User watchlists</li>
+                <li><strong>alerts</strong> - Price alerts</li>
+                <li><strong>audit_log</strong> - Activity tracking</li>
+            </ol>
+        </section>
+
+        <section>
+            <h3>Data Sources (3 Public Datasets)</h3>
+            <ol>
+                <li><strong>S&P 500 Companies</strong> - Company information and sectors (Kaggle)</li>
+                <li><strong>Stock Prices</strong> - Historical daily prices (Yahoo Finance via yfinance)</li>
+                <li><strong>S&P 500 List</strong> - Current constituent companies (Wikipedia)</li>
+            </ol>
+        </section>
+
+        <section>
+            <h3>Technology Stack</h3>
+            <ul>
+                <li><strong>Backend:</strong> Python, Flask</li>
+                <li><strong>Database:</strong> MySQL</li>
+                <li><strong>Frontend:</strong> HTML, CSS</li>
+                <li><strong>Data:</strong> pandas, yfinance, kagglehub</li>
+            </ul>
+        </section>
+
+        <section>
+            <h3>Interactive Features</h3>
+            <ul>
+                <li><strong>Write Operations:</strong> Add/remove stocks from watchlist</li>
+                <li><strong>Read Operations:</strong> View stocks, portfolios, prices, analytics</li>
+                <li><strong>Analytics:</strong> Sector distribution, top volume stocks, volatility analysis</li>
+            </ul>
+        </section>
+    </div>
+</div>
+{% endblock %}

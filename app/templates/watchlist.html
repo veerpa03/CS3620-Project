@@ -1,0 +1,68 @@
+{% extends "base.html" %}
+
+{% block title %}Watchlist - StockFlow{% endblock %}
+
+{% block content %}
+<div class="watchlist-page">
+    <h2>My Watchlist</h2>
+
+    <div class="add-watchlist-form">
+        <h3>Add Stock to Watchlist</h3>
+        <form method="POST" action="{{ url_for('add_to_watchlist') }}">
+            <div class="form-group">
+                <label for="stock_id">Select Stock:</label>
+                <select name="stock_id" id="stock_id" required>
+                    <option value="">Choose a stock...</option>
+                    {% for stock in stocks %}
+                    <option value="{{ stock.stock_id }}">{{ stock.symbol }} - {{ stock.company_name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="notes">Notes (optional):</label>
+                <input type="text" name="notes" id="notes" placeholder="Why are you watching this stock?">
+            </div>
+            <button type="submit" class="btn btn-primary">Add to Watchlist</button>
+        </form>
+    </div>
+
+    <div class="section">
+        <h3>Your Watched Stocks ({{ watchlist|length }})</h3>
+
+        {% if watchlist %}
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>Symbol</th>
+                    <th>Company Name</th>
+                    <th>Sector</th>
+                    <th>Added Date</th>
+                    <th>Notes</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in watchlist %}
+                <tr>
+                    <td><strong>{{ item.symbol }}</strong></td>
+                    <td>{{ item.company_name }}</td>
+                    <td>{{ item.sector_name or 'N/A' }}</td>
+                    <td>{{ item.added_date.strftime('%Y-%m-%d') }}</td>
+                    <td>{{ item.notes or '-' }}</td>
+                    <td>
+                        <a href="{{ url_for('remove_from_watchlist', watchlist_id=item.watchlist_id) }}"
+                           class="btn btn-danger btn-sm"
+                           onclick="return confirm('Remove this stock from watchlist?')">
+                            Remove
+                        </a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+        <p>No stocks in your watchlist. Add some stocks above!</p>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
