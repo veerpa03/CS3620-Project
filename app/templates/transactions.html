@@ -1,0 +1,68 @@
+{% extends "base.html" %}
+
+{% block title %}Transactions - StockFlow{% endblock %}
+
+{% block content %}
+<div class="transactions-page">
+    <div class="page-header">
+        <h2>Transactions</h2>
+        <a href="{{ url_for('add_transaction') }}" class="btn btn-primary">+ Add Transaction</a>
+    </div>
+
+    <div class="filters">
+        <form method="GET" action="{{ url_for('transactions') }}">
+            <label for="portfolio">Filter by Portfolio:</label>
+            <select name="portfolio" id="portfolio" onchange="this.form.submit()">
+                <option value="">All Portfolios</option>
+                {% for portfolio in portfolios %}
+                <option value="{{ portfolio.portfolio_id }}"
+                        {% if portfolio_filter == portfolio.portfolio_id|string %}selected{% endif %}>
+                    {{ portfolio.portfolio_name }}
+                </option>
+                {% endfor %}
+            </select>
+        </form>
+    </div>
+
+    <div class="section">
+        {% if transactions %}
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>Date</th>
+                    <th>Portfolio</th>
+                    <th>Stock</th>
+                    <th>Type</th>
+                    <th>Quantity</th>
+                    <th>Price/Share</th>
+                    <th>Total</th>
+                    <th>Fees</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for txn in transactions %}
+                <tr>
+                    <td>{{ txn.transaction_date.strftime('%Y-%m-%d %H:%M') }}</td>
+                    <td>{{ txn.portfolio_name }}</td>
+                    <td><strong>{{ txn.symbol }}</strong> - {{ txn.company_name }}</td>
+                    <td><span class="badge badge-{{ txn.transaction_type }}">{{ txn.transaction_type }}</span></td>
+                    <td>{{ txn.quantity }}</td>
+                    <td>${{ "%.2f"|format(txn.price_per_share) }}</td>
+                    <td>${{ "%.2f"|format(txn.total_amount) }}</td>
+                    <td>${{ "%.2f"|format(txn.fees) }}</td>
+                    <td>
+                        <a href="{{ url_for('delete_transaction', transaction_id=txn.transaction_id) }}"
+                           class="btn btn-danger btn-sm"
+                           onclick="return confirm('Delete this transaction?')">Delete</a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+        <p>No transactions found. <a href="{{ url_for('add_transaction') }}">Add your first transaction</a></p>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

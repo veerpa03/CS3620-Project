@@ -90,51 +90,25 @@ def index():
 
 @app.route('/stocks')
 def stocks():
-    """READ: View all stocks with FILTER"""
-    sector_filter = request.args.get('sector', '')
-    search = request.args.get('search', '')
-
+    """View all stocks"""
     connection = get_db_connection()
 
     if connection:
         cursor = connection.cursor(dictionary=True)
 
-        # Build query with filters
-        query = """
+        cursor.execute("""
             SELECT s.stock_id, s.symbol, s.company_name,
                    sec.sector_name, s.exchange
             FROM stocks s
             LEFT JOIN sectors sec ON s.sector_id = sec.sector_id
-            WHERE 1=1
-        """
-        params = []
-
-        if sector_filter:
-            query += " AND sec.sector_name = %s"
-            params.append(sector_filter)
-
-        if search:
-            query += " AND (s.symbol LIKE %s OR s.company_name LIKE %s)"
-            params.append(f"%{search}%")
-            params.append(f"%{search}%")
-
-        query += " ORDER BY s.symbol LIMIT 100"
-
-        cursor.execute(query, params)
+            ORDER BY s.symbol
+        """)
         all_stocks = cursor.fetchall()
-
-        # Get all sectors for filter dropdown
-        cursor.execute("SELECT DISTINCT sector_name FROM sectors ORDER BY sector_name")
-        sectors = cursor.fetchall()
 
         cursor.close()
         connection.close()
 
-        return render_template('stocks.html',
-                             stocks=all_stocks,
-                             sectors=sectors,
-                             sector_filter=sector_filter,
-                             search=search)
+        return render_template('stocks.html', stocks=all_stocks)
     else:
         return "Database connection error", 500
 
@@ -338,193 +312,6 @@ def analytics():
 def about():
     """About page"""
     return render_template('about.html')
-
-# ==================== STOCKS CRUD (Checkpoint 2) ====================
-
-@app.route('/stock/add', methods=['GET', 'POST'])
-def add_stock():
-    """CREATE: Add new stock"""
-    if request.method == 'POST':
-        symbol = request.form.get('symbol', '').upper()
-        company_name = request.form.get('company_name')
-        sector_id = request.form.get('sector_id')
-        exchange = request.form.get('exchange')
-
-        connection = get_db_connection()
-        if connection:
-            cursor = connection.cursor()
-            try:
-                cursor.execute("""
-                    INSERT INTO stocks (symbol, company_name, sector_id, exchange)
-                    VALUES (%s, %s, %s, %s)
-                """, (symbol, company_name, sector_id, exchange))
-                connection.commit()
-                flash(f'Stock {symbol} added successfully!', 'success')
-                return redirect(url_for('stocks'))
-            except Error as e:
-                flash(f'Error: {str(e)}', 'error')
-            cursor.close()
-            connection.close()
-
-    connection = get_db_connection()
-    if connection:
-        cursor = connection.cursor(dictionary=True)
-        cursor.execute("SELECT * FROM sectors ORDER BY sector_name")
-        sectors = cursor.fetchall()
-        cursor.close()
-        connection.close()
-        return render_template('stock_add.html', sectors=sectors)
-    return redirect(url_for('stocks'))
-
-@app.route('/stock/edit/<int:stock_id>', methods=['GET', 'POST'])
-def edit_stock(stock_id):
-    """UPDATE: Edit existing stock"""
-    connection = get_db_connection()
-
-    if request.method == 'POST':
-        company_name = request.form.get('company_name')
-        sector_id = request.form.get('sector_id')
-        exchange = request.form.get('exchange')
-
-        if connection:
-            cursor = connection.cursor()
-            try:
-                cursor.execute("""
-                    UPDATE stocks SET company_name=%s, sector_id=%s, exchange=%s
-                    WHERE stock_id=%s
-                """, (company_name, sector_id, exchange, stock_id))
-                connection.commit()
-                flash('Stock updated successfully!', 'success')
-                return redirect(url_for('stock_detail', stock_id=stock_id))
-            except Error as e:
-                flash(f'Error: {str(e)}', 'error')
-            cursor.close()
-            connection.close()
-
-    if connection:
-        cursor = connection.cursor(dictionary=True)
-        cursor.execute("SELECT * FROM stocks WHERE stock_id=%s", (stock_id,))
-        stock = cursor.fetchone()
-        cursor.execute("SELECT * FROM sectors ORDER BY sector_name")
-        sectors = cursor.fetchall()
-        cursor.close()
-        connection.close()
-        return render_template('stock_edit.html', stock=stock, sectors=sectors)
-    return redirect(url_for('stocks'))
-
-@app.route('/stock/delete/<int:stock_id>')
-def delete_stock(stock_id):
-    """DELETE: Remove stock"""
-    connection = get_db_connection()
-    if connection:
-        cursor = connection.cursor()
-        try:
-            cursor.execute("DELETE FROM stocks WHERE stock_id=%s", (stock_id,))
-            connection.commit()
-            flash('Stock deleted successfully!', 'success')
-        except Error as e:
-            flash(f'Error: {str(e)}', 'error')
-        cursor.close()
-        connection.close()
-    return redirect(url_for('stocks'))
-
-# ==================== TRANSACTIONS CRUD (Checkpoint 2) ====================
-
-@app.route('/transactions')
-def transactions():
-    """READ: View all transactions with filter"""
-    portfolio_filter = request.args.get('portfolio', '')
-    connection = get_db_connection()
-
-    if connection:
-        cursor = connection.cursor(dictionary=True)
-        query = """
-            SELECT t.*, s.symbol, s.company_name, p.portfolio_name
-            FROM transactions t
-            JOIN stocks s ON t.stock_id=s.stock_id
-            JOIN portfolios p ON t.portfolio_id=p.portfolio_id
-            WHERE 1=1
-        """
-        params = []
-        if portfolio_filter:
-            query += " AND t.portfolio_id=%s"
-            params.append(portfolio_filter)
-        query += " ORDER BY t.transaction_date DESC LIMIT 50"
-
-        cursor.execute(query, params)
-        all_transactions = cursor.fetchall()
-
-        cursor.execute("SELECT portfolio_id, portfolio_name FROM portfolios")
-        portfolios_list = cursor.fetchall()
-
-        cursor.close()
-        connection.close()
-        return render_template('transactions.html',
-                             transactions=all_transactions,
-                             portfolios=portfolios_list,
-                             portfolio_filter=portfolio_filter)
-    return "Database error", 500
-
-@app.route('/transaction/add', methods=['GET', 'POST'])
-def add_transaction():
-    """CREATE: Add new transaction"""
-    if request.method == 'POST':
-        portfolio_id = request.form.get('portfolio_id')
-        stock_id = request.form.get('stock_id')
-        transaction_type = request.form.get('transaction_type')
-        quantity = int(request.form.get('quantity'))
-        price_per_share = float(request.form.get('price_per_share'))
-        fees = float(request.form.get('fees', 0))
-        notes = request.form.get('notes', '')
-        total_amount = (quantity * price_per_share) + fees
-
-        connection = get_db_connection()
-        if connection:
-            cursor = connection.cursor()
-            try:
-                cursor.execute("""
-                    INSERT INTO transactions
-                    (portfolio_id, stock_id, transaction_type, quantity,
-                     price_per_share, total_amount, fees, notes)
-                    VALUES (%s,%s,%s,%s,%s,%s,%s,%s)
-                """, (portfolio_id, stock_id, transaction_type, quantity,
-                       price_per_share, total_amount, fees, notes))
-                connection.commit()
-                flash('Transaction added successfully!', 'success')
-                return redirect(url_for('transactions'))
-            except Error as e:
-                flash(f'Error: {str(e)}', 'error')
-            cursor.close()
-            connection.close()
-
-    connection = get_db_connection()
-    if connection:
-        cursor = connection.cursor(dictionary=True)
-        cursor.execute("SELECT portfolio_id, portfolio_name FROM portfolios WHERE is_active=TRUE")
-        portfolios_list = cursor.fetchall()
-        cursor.execute("SELECT stock_id, symbol, company_name FROM stocks ORDER BY symbol LIMIT 200")
-        stocks_list = cursor.fetchall()
-        cursor.close()
-        connection.close()
-        return render_template('transaction_add.html',
-                             portfolios=portfolios_list, stocks=stocks_list)
-    return redirect(url_for('transactions'))
-
-@app.route('/transaction/delete/<int:transaction_id>')
-def delete_transaction(transaction_id):
-    """DELETE: Remove transaction"""
-    connection = get_db_connection()
-    if connection:
-        cursor = connection.cursor()
-        try:
-            cursor.execute("DELETE FROM transactions WHERE transaction_id=%s", (transaction_id,))
-            connection.commit()
-            flash('Transaction deleted successfully!', 'success')
-        except Error as e:
-            flash(f'Error: {str(e)}', 'error')
-        cursor.close()
-        connection.close()
-    return redirect(url_for('transactions'))
 
 if __name__ == '__main__':
     app.run(debug=True, port=5000)
