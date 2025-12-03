@@ -126,7 +126,7 @@ The application will start at: **http://localhost:5000**
 
 ## ER Diagram
 
-See `ER_DIAGRAM.md` for the complete entity-relationship diagram with:
+See `ER_Diagram.png` for the complete entity-relationship diagram with:
 - All 10 tables
 - Primary keys and foreign keys
 - Relationships and cardinality
@@ -140,3 +140,96 @@ See `ER_DIAGRAM.md` for the complete entity-relationship diagram with:
 ## License
 
 This project is for educational purposes only.
+
+---
+
+## Checkpoint 2 Updates
+
+### Database Schema Expansion (20 Tables Total)
+
+The database has been expanded from 10 to 20 tables to support advanced portfolio management features.
+
+#### New Tables Added (11-20)
+
+11. **user_preferences** - User application settings and preferences
+12. **dividends** - Dividend payment records for stocks
+13. **stock_splits** - Stock split history
+14. **portfolio_history** - Historical portfolio value snapshots
+15. **notifications** - User notification system
+16. **transaction_fees** - Fee structure configuration
+17. **market_indices** - Market index tracking (S&P 500, NASDAQ)
+18. **stock_fundamentals** - Stock fundamental data (P/E ratio, EPS, etc.)
+19. **trade_orders** - Pending and executed trade orders
+20. **session_logs** - User session tracking and security
+
+### CRUD Operations Implemented
+
+#### Create
+- Add stocks to watchlist
+- Add new stock to database
+- Add transaction records
+- Create user accounts
+- Create portfolios
+
+#### Read
+- View stock prices and historical data
+- View portfolio analytics
+- Search and filter stocks by sector
+- View all stocks in database
+- View transaction history
+- View watchlist
+
+#### Update
+- Edit stock information
+- Update stock details
+
+#### Delete
+- Remove stocks from watchlist
+- Delete stock records
+- Delete transactions
+
+#### Filter
+- Filter stocks by sector
+- Search stocks by name or symbol
+- Filter transactions by portfolio
+
+### Updated Setup Instructions for Checkpoint 2
+
+#### Initialize Database (Version 2)
+
+```bash
+python database/init_db_v2.py
+```
+
+Expected output:
+```
+Database 'stock_portfolio' created successfully
+Database schema created successfully
+20 tables created
+```
+
+#### Run Application
+
+```bash
+cd app
+python app.py
+```
+
+The application will start at: http://localhost:5000
+
+### ER Diagram
+
+See `ER_Diagram_Checkpoint2.png` for the complete entity-relationship diagram with:
+- All 20 tables with their columns
+- Primary keys and foreign keys
+- Relationships and cardinality (1:1, 1:N)
+- Unique constraints and indexes
+
+
+### Database Statistics
+
+- Total Tables: 20
+- Total Relationships: 24
+- Foreign Keys: 25
+- Unique Constraints: 10
+- Check Constraints: 5
