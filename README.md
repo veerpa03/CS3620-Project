@@ -126,7 +126,7 @@ The application will start at: **http://localhost:5000**
 
 ## ER Diagram
 
-See `ER_Diagram.png` for the complete entity-relationship diagram with:
+See `ER_Diagram_Checkpoint1.png` for the complete entity-relationship diagram with:
 - All 10 tables
 - Primary keys and foreign keys
 - Relationships and cardinality
