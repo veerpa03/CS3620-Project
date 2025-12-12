@@ -21,6 +21,15 @@
                 <li><a href="{{ url_for('watchlist') }}">Watchlist</a></li>
                 <li><a href="{{ url_for('analytics') }}">Analytics</a></li>
                 <li><a href="{{ url_for('about') }}">About</a></li>
+                {% if session.get('user_id') %}
+                    <li class="nav-user">
+                        <span>{{ session.get('user_name', 'User') }}</span>
+                    </li>
+                    <li><a href="{{ url_for('logout') }}" class="btn-logout">Logout</a></li>
+                {% else %}
+                    <li><a href="{{ url_for('login') }}" class="btn-login">Login</a></li>
+                    <li><a href="{{ url_for('register') }}" class="btn-register">Register</a></li>
+                {% endif %}
             </ul>
         </div>
     </nav>

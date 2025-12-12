@@ -3,12 +3,14 @@ StockFlow - Flask Web Application
 Portfolio management and stock tracking system
 """
 
-from flask import Flask, render_template, request, redirect, url_for, flash, jsonify
+from flask import Flask, render_template, request, redirect, url_for, flash, jsonify, session
 import mysql.connector
 from mysql.connector import Error
 import os
 from dotenv import load_dotenv
 from datetime import datetime, timedelta
+from functools import wraps
+import hashlib
 
 # Load environment variables
 load_dotenv()
@@ -31,6 +33,180 @@ def get_db_connection():
     except Error as e:
         print(f"Error connecting to database: {e}")
         return None
+
+# Authentication decorator
+def login_required(f):
+    """Decorator to require login for protected routes"""
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        if 'user_id' not in session:
+            flash('Please log in to access this page.', 'error')
+            return redirect(url_for('login'))
+        return f(*args, **kwargs)
+    return decorated_function
+
+def hash_password(password):
+    """Hash password using SHA-256"""
+    return hashlib.sha256(password.encode()).hexdigest()
+
+def log_audit(user_id, action_type, table_name, record_id, action_details, ip_address):
+    """Log user actions to audit_log table"""
+    connection = get_db_connection()
+    if connection:
+        try:
+            cursor = connection.cursor()
+            cursor.execute("""
+                INSERT INTO audit_log (user_id, action_type, table_name, record_id, action_details, ip_address)
+                VALUES (%s, %s, %s, %s, %s, %s)
+            """, (user_id, action_type, table_name, record_id, action_details, ip_address))
+            connection.commit()
+            cursor.close()
+            connection.close()
+        except Error as e:
+            print(f"Error logging audit: {e}")
+
+# ==================== AUTHENTICATION ROUTES ====================
+
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+    """User login"""
+    if request.method == 'POST':
+        email = request.form.get('email')
+        password = request.form.get('password')
+        password_hash = hash_password(password)
+
+        connection = get_db_connection()
+        if connection:
+            cursor = connection.cursor(dictionary=True)
+            cursor.execute("""
+                SELECT user_id, email, first_name, last_name, status
+                FROM users
+                WHERE email = %s AND password_hash = %s
+            """, (email, password_hash))
+            user = cursor.fetchone()
+
+            if user and user['status'] == 'active':
+                session['user_id'] = user['user_id']
+                session['user_email'] = user['email']
+                session['user_name'] = f"{user['first_name']} {user['last_name']}"
+
+                # Log session in session_logs table
+                cursor.execute("""
+                    INSERT INTO session_logs (user_id, ip_address, user_agent)
+                    VALUES (%s, %s, %s)
+                """, (user['user_id'], request.remote_addr, request.headers.get('User-Agent')))
+                session['session_id'] = cursor.lastrowid
+
+                # Update last login
+                cursor.execute("""
+                    UPDATE users SET last_login = NOW()
+                    WHERE user_id = %s
+                """, (user['user_id'],))
+
+                connection.commit()
+
+                # Log audit
+                log_audit(user['user_id'], 'LOGIN', 'users', user['user_id'],
+                         'User logged in', request.remote_addr)
+
+                flash(f'Welcome back, {user["first_name"]}!', 'success')
+                cursor.close()
+                connection.close()
+                return redirect(url_for('index'))
+            else:
+                flash('Invalid email or password', 'error')
+
+            cursor.close()
+            connection.close()
+
+    return render_template('login.html')
+
+@app.route('/register', methods=['GET', 'POST'])
+def register():
+    """User registration"""
+    if request.method == 'POST':
+        email = request.form.get('email')
+        password = request.form.get('password')
+        first_name = request.form.get('first_name')
+        last_name = request.form.get('last_name')
+
+        # Basic validation
+        if not email or not password or not first_name or not last_name:
+            flash('All fields are required', 'error')
+            return render_template('register.html')
+
+        password_hash = hash_password(password)
+
+        connection = get_db_connection()
+        if connection:
+            cursor = connection.cursor()
+            try:
+                cursor.execute("""
+                    INSERT INTO users (email, password_hash, first_name, last_name)
+                    VALUES (%s, %s, %s, %s)
+                """, (email, password_hash, first_name, last_name))
+                user_id = cursor.lastrowid
+
+                # Create default portfolio for new user
+                cursor.execute("""
+                    INSERT INTO portfolios (user_id, portfolio_name, description)
+                    VALUES (%s, 'Default Portfolio', 'Your main investment portfolio')
+                """, (user_id,))
+
+                # Create default preferences
+                cursor.execute("""
+                    INSERT INTO user_preferences (user_id)
+                    VALUES (%s)
+                """, (user_id,))
+
+                connection.commit()
+
+                # Log audit
+                log_audit(user_id, 'REGISTER', 'users', user_id,
+                         'New user registered', request.remote_addr)
+
+                flash('Registration successful! Please log in.', 'success')
+                cursor.close()
+                connection.close()
+                return redirect(url_for('login'))
+            except Error as e:
+                flash(f'Error: Email already exists or invalid data', 'error')
+                cursor.close()
+                connection.close()
+
+    return render_template('register.html')
+
+@app.route('/logout')
+def logout():
+    """User logout"""
+    if 'user_id' in session:
+        user_id = session['user_id']
+        session_id = session.get('session_id')
+
+        # Update session log
+        if session_id:
+            connection = get_db_connection()
+            if connection:
+                cursor = connection.cursor()
+                cursor.execute("""
+                    UPDATE session_logs
+                    SET logout_time = NOW(), is_active = FALSE
+                    WHERE session_id = %s
+                """, (session_id,))
+                connection.commit()
+                cursor.close()
+                connection.close()
+
+        # Log audit
+        log_audit(user_id, 'LOGOUT', 'users', user_id,
+                 'User logged out', request.remote_addr)
+
+        session.clear()
+        flash('You have been logged out.', 'success')
+
+    return redirect(url_for('login'))
+
+# ==================== PUBLIC ROUTES ====================
 
 @app.route('/')
 def index():
@@ -197,21 +373,24 @@ def portfolios():
         return "Database connection error", 500
 
 @app.route('/watchlist')
+@login_required
 def watchlist():
     """View watchlist"""
     connection = get_db_connection()
+    user_id = session.get('user_id')
 
     if connection:
         cursor = connection.cursor(dictionary=True)
 
-        # Get demo user's watchlist
+        # Get logged-in user's watchlist
         cursor.execute("""
             SELECT w.*, s.symbol, s.company_name, sec.sector_name
             FROM watchlist w
             JOIN stocks s ON w.stock_id = s.stock_id
             LEFT JOIN sectors sec ON s.sector_id = sec.sector_id
+            WHERE w.user_id = %s
             ORDER BY w.added_date DESC
-        """)
+        """, (user_id,))
         watchlist_items = cursor.fetchall()
 
         # Get all stocks for adding to watchlist
@@ -232,19 +411,16 @@ def watchlist():
         return "Database connection error", 500
 
 @app.route('/add_to_watchlist', methods=['POST'])
+@login_required
 def add_to_watchlist():
     """Add stock to watchlist"""
     stock_id = request.form.get('stock_id')
     notes = request.form.get('notes', '')
+    user_id = session.get('user_id')
 
     connection = get_db_connection()
     if connection:
         cursor = connection.cursor()
-
-        # Get demo user ID
-        cursor.execute("SELECT user_id FROM users WHERE email = 'demo@stockflow.com'")
-        result = cursor.fetchone()
-        user_id = result[0] if result else 1
 
         try:
             cursor.execute("""
@@ -263,6 +439,7 @@ def add_to_watchlist():
     return redirect(url_for('watchlist'))
 
 @app.route('/remove_from_watchlist/<int:watchlist_id>')
+@login_required
 def remove_from_watchlist(watchlist_id):
     """Remove stock from watchlist"""
     connection = get_db_connection()
@@ -342,6 +519,7 @@ def about():
 # ==================== STOCKS CRUD (Checkpoint 2) ====================
 
 @app.route('/stock/add', methods=['GET', 'POST'])
+@login_required
 def add_stock():
     """CREATE: Add new stock"""
     if request.method == 'POST':
@@ -377,6 +555,7 @@ def add_stock():
     return redirect(url_for('stocks'))
 
 @app.route('/stock/edit/<int:stock_id>', methods=['GET', 'POST'])
+@login_required
 def edit_stock(stock_id):
     """UPDATE: Edit existing stock"""
     connection = get_db_connection()
@@ -413,6 +592,7 @@ def edit_stock(stock_id):
     return redirect(url_for('stocks'))
 
 @app.route('/stock/delete/<int:stock_id>')
+@login_required
 def delete_stock(stock_id):
     """DELETE: Remove stock"""
     connection = get_db_connection()
@@ -466,6 +646,7 @@ def transactions():
     return "Database error", 500
 
 @app.route('/transaction/add', methods=['GET', 'POST'])
+@login_required
 def add_transaction():
     """CREATE: Add new transaction"""
     if request.method == 'POST':
@@ -511,6 +692,7 @@ def add_transaction():
     return redirect(url_for('transactions'))
 
 @app.route('/transaction/delete/<int:transaction_id>')
+@login_required
 def delete_transaction(transaction_id):
     """DELETE: Remove transaction"""
     connection = get_db_connection()

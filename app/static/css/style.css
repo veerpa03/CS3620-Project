@@ -66,6 +66,43 @@ body {
     opacity: 0.8;
 }
 
+.nav-user {
+    display: flex;
+    align-items: center;
+    color: white;
+    font-weight: 500;
+    padding: 0.5rem 1rem;
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 4px;
+}
+
+.btn-login, .btn-register, .btn-logout {
+    padding: 0.5rem 1rem;
+    border-radius: 4px;
+    font-weight: 600;
+}
+
+.btn-login {
+    background: rgba(255, 255, 255, 0.2);
+}
+
+.btn-register {
+    background: white;
+    color: var(--primary-color);
+}
+
+.btn-logout {
+    background: rgba(255, 255, 255, 0.2);
+}
+
+.btn-login:hover, .btn-logout:hover {
+    background: rgba(255, 255, 255, 0.3);
+}
+
+.btn-register:hover {
+    background: rgba(255, 255, 255, 0.9);
+}
+
 /* Container */
 .container {
     max-width: 1200px;
