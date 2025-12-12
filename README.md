@@ -233,3 +233,23 @@ See `ER_Diagram_Checkpoint2.png` for the complete entity-relationship diagram wi
 - Foreign Keys: 25
 - Unique Constraints: 10
 - Check Constraints: 5
+
+---
+
+## Authentication & Access Control
+
+### Features
+
+- **User Registration**: Create new accounts with email/password
+- **User Login**: Secure authentication using SHA-256 password hashing
+- **Session Management**: Sessions tracked in `session_logs` table with IP address and user agent
+- **Access Control**: Protected routes require login (watchlist, add/edit/delete operations)
+- **Audit Logging**: User actions logged to `audit_log` table (login, logout, register)
+
+### Usage
+
+1. **Register**: Visit `/register` to create an account
+2. **Login**: Visit `/login` to access protected features
+3. **Protected Actions**: Add/edit/delete stocks, manage watchlist, create transactions
+
+All sensitive write operations require authentication. Public read-only features (view stocks, analytics) remain accessible without login.
